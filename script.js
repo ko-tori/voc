@@ -16,24 +16,37 @@ let numActive = 0;
 const shiftedNums = '!@#$%^&*(';
 
 document.addEventListener('keypress', e => {
-  if (isFinite(e.key) && e.key > 0 && e.key < 10) {
+  if (shiftedNums.includes(e.key)) {
+    const j = shiftedNums.indexOf(e.key);
     for (let i = 0; i < voices.length; i++) {
       const voiceEl = document.getElementById(voices[i]);
-      if (i + 1 == e.key) {
+      if (i == j) {
         voiceEl.classList.add('active');
       } else {
         voiceEl.classList.remove('active');
       }
     }
     numActive = 1;
-  } else if (shiftedNums.includes(e.key)) {
-    const voiceEl = document.getElementById(voices[shiftedNums.indexOf(e.key)]);
-    voiceEl.classList.toggle('active');
-    if (voiceEl.classList.contains('active')) {
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (isFinite(e.key) && e.key > 0 && e.key < 10) {
+    const voiceEl = document.getElementById(voices[e.key - 1]);
+    if (!voiceEl.classList.contains('active')) {
       numActive++;
-    } else {
+    }
+    voiceEl.classList.add('active');
+  }
+});
+
+document.addEventListener('keyup', e => {
+  if (isFinite(e.key) && e.key > 0 && e.key < 10) {
+    const voiceEl = document.getElementById(voices[e.key - 1]);
+    if (voiceEl.classList.contains('active')) {
       numActive--;
     }
+    voiceEl.classList.remove('active');
   }
 });
 
