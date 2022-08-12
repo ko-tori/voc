@@ -1,5 +1,5 @@
 const song = 'ksgk';
-const voices = ['honoka', 'kotori', 'umi', 'rin', 'hanayo', 'maki', 'eri', 'nozomi', 'nico'];
+const voices = ['rin', 'hanayo', 'maki', 'honoka', 'kotori', 'umi', 'nico', 'nozomi', 'eri'];
 const sources = {};
 const gains = {};
 let instrumental;
@@ -12,6 +12,30 @@ let instrumentalData;
 
 let startTime;
 let numActive = 0;
+
+const shiftedNums = '!@#$%^&*(';
+
+document.addEventListener('keypress', e => {
+  if (isFinite(e.key) && e.key > 0 && e.key < 10) {
+    for (let i = 0; i < voices.length; i++) {
+      const voiceEl = document.getElementById(voices[i]);
+      if (i + 1 == e.key) {
+        voiceEl.classList.add('active');
+      } else {
+        voiceEl.classList.remove('active');
+      }
+    }
+    numActive = 1;
+  } else if (shiftedNums.includes(e.key)) {
+    const voiceEl = document.getElementById(voices[shiftedNums.indexOf(e.key)]);
+    voiceEl.classList.toggle('active');
+    if (voiceEl.classList.contains('active')) {
+      numActive++;
+    } else {
+      numActive--;
+    }
+  }
+});
 
 document.addEventListener('click', e => {
   const target = e.target.id ? e.target : e.target.parentElement;
