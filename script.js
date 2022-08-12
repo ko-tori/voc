@@ -2,13 +2,14 @@ const song = 'ksgk';
 const voices = ['honoka', 'kotori', 'umi', 'rin', 'hanayo', 'maki', 'eri', 'nozomi', 'nico'];
 const sources = {};
 const gains = {};
+let instrumental;
+let volumeControl;
 
 let context;
 
 let dataBuffers;
 let instrumentalData;
 
-let instrumental;
 let startTime;
 let numActive = 0;
 
@@ -25,6 +26,11 @@ document.addEventListener('click', e => {
   }
 });
 
+document.getElementById('volume').addEventListener('change', e => {
+  if (!volumeControl) return;
+  volumeControl.gain.value = parseFloat(e.target.value);
+});
+
 document.getElementById('start').addEventListener('click', async e => {
   e.target.innerHTML = 'Loading...';
   e.target.disabled = true;
@@ -32,9 +38,13 @@ document.getElementById('start').addEventListener('click', async e => {
   const currentTime = context.currentTime;
   const audioBuffers = await Promise.all(dataBuffers.map(buf => context.decodeAudioData(buf)));
 
+  volumeControl = context.createGain();
+  volumeControl.gain.value = 0.5;
+  volumeControl.connect(context.destination);
+
   instrumental = context.createBufferSource();
   instrumental.buffer = await context.decodeAudioData(instrumentalData);
-  instrumental.connect(context.destination);
+  instrumental.connect(volumeControl);
   startTime = currentTime + 0.5;
   instrumental.start(startTime);
 
@@ -45,7 +55,7 @@ document.getElementById('start').addEventListener('click', async e => {
     const gain = context.createGain();
     gain.gain.value = 0;
     source.connect(gain);
-    gain.connect(context.destination);
+    gain.connect(volumeControl);
     sources[voice] = source;
     gains[voice] = gain;
     source.start(startTime);
