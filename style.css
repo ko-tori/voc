@@ -1,0 +1,74 @@
+@font-face {
+    font-family: NotoSansJP;
+    src: url("NotoSansJP-Regular.otf") format("opentype");
+}
+
+body {
+  margin-top: 30px;
+  font-family: NotoSansJp;
+}
+
+.row {
+  display: block;
+}
+
+#voices {
+  user-select: none;
+  cursor: pointer;
+}
+
+#voices .row div {
+  display: inline-block;
+  border-radius: 5px;
+  padding: 20px;
+  margin: 10px;
+  width: 100px;
+  opacity: 0.5;
+  text-align: center;
+  transition: opacity .3s, box-shadow .3s;
+}
+
+#voices .row div.active {
+  opacity: 1;
+  box-shadow: 5px 5px 5px #BBB;
+}
+
+#rin {
+  background-color: #F1C51F;
+}
+
+#hanayo {
+  background-color: #54AB48;
+}
+
+#maki {
+  background-color: #CC3554;
+}
+
+#honoka {
+  background-color: #E2732D;
+}
+
+#kotori {
+  background-color: #8C9395;
+}
+
+#umi {
+  background-color: #1660A5;
+}
+
+#nico {
+  background-color: #D54E8D;
+}
+
+#nozomi {
+  background-color: #744791;
+}
+
+#eri {
+  background-color: #36B3DD;
+}
+
+#controls {
+  margin: 10px;
+}
