@@ -87,4 +87,5 @@ setInterval(update, 50);
    dataBuffers = await Promise.all(voices.map(voice => fetch(`${song}/${voice}.ogg`).then(res => res.arrayBuffer())));
    instrumentalData = await fetch(`${song}/instrumental.ogg`).then(res => res.arrayBuffer());
    document.getElementById('start').disabled = false;
+   document.getElementById('start').innerHTML = 'Start';
  })();
