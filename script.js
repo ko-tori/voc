@@ -63,7 +63,7 @@ document.addEventListener('click', e => {
   }
 });
 
-document.getElementById('volume').addEventListener('change', e => {
+document.getElementById('volume').addEventListener('input', e => {
   if (!volumeControl) return;
   volumeControl.gain.value = parseFloat(e.target.value);
 });
@@ -107,7 +107,7 @@ function update() {
   for (const voice of voices) {
     const active = document.getElementById(voice).classList.contains('active');
 
-    const maxGain = 1 / (numActive / 7 + 1);
+    const maxGain = 1.5 / (numActive / 7 + 1);
     const gain = gains[voice];
     if (!gain) return;
     if (!active || gain.gain.value > maxGain) {
