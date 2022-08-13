@@ -14,10 +14,10 @@ body {
 
 #voices {
   user-select: none;
-  cursor: pointer;
 }
 
 #voices .row div {
+  cursor: pointer;
   display: inline-block;
   border-radius: 5px;
   padding: 20px;
