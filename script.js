@@ -11,6 +11,7 @@ let dataBuffers;
 let instrumentalData;
 
 let startTime;
+let pausedTime;
 let numActive = 0;
 
 const shiftedNums = '!@#$%^&*(';
@@ -68,9 +69,32 @@ document.getElementById('volume').addEventListener('input', e => {
   volumeControl.gain.value = parseFloat(e.target.value);
 });
 
+document.getElementById('time').addEventListener('input', e => {
+  const buttonText = document.getElementById('start').innerHTML;
+  if (buttonText == 'Play') {
+    pausedTime = parseFloat(e.target.value);
+  } else {
+    seek(e.target.value);
+  }
+});
+
 document.getElementById('start').addEventListener('click', async e => {
-  e.target.innerHTML = 'Loading...';
-  e.target.disabled = true;
+  const button = document.getElementById('start');
+  if (button.innerHTML == 'Pause' && context) {
+    stop();
+    button.innerHTML = 'Play';
+    pausedTime = context.currentTime - startTime;
+    return;
+  } else if (button.innerHTML == 'Play' && context) {
+    seek(pausedTime);
+    pausedTime = undefined;
+    button.innerHTML = 'Pause';
+    return;
+  } else if (button.innerHTML == 'Loading...') {
+    return;
+  }
+  button.innerHTML = 'Loading...';
+  button.disabled = true;
   context = new (window.AudioContext || window.webkitAudioContext)();
   const currentTime = context.currentTime;
   const audioBuffers = await Promise.all(dataBuffers.map(buf => context.decodeAudioData(buf)));
@@ -82,8 +106,10 @@ document.getElementById('start').addEventListener('click', async e => {
   instrumental = context.createBufferSource();
   instrumental.buffer = await context.decodeAudioData(instrumentalData);
   instrumental.connect(volumeControl);
-  startTime = currentTime + 0.5;
+  startTime = currentTime;
   instrumental.start(startTime);
+
+  document.getElementById('time').setAttribute('max', instrumental.buffer.duration);
 
   audioBuffers.forEach((buf, i) => {
     const voice = voices[i];
@@ -98,27 +124,70 @@ document.getElementById('start').addEventListener('click', async e => {
     source.start(startTime);
    });
 
-  e.target.innerHTML = 'Playing';
+  button.innerHTML = 'Pause';
+  button.disabled = false;
+  document.getElementById('time').disabled = false;
+  update();
 });
 
+function seek(offset) {
+  if (!context || !instrumental) return;
+  const currentTime = context.currentTime;
+  instrumental.stop();
+  const newInstrumental = context.createBufferSource();
+  newInstrumental.buffer = instrumental.buffer;
+  instrumental = newInstrumental;
+  instrumental.connect(volumeControl);
+  startTime = currentTime - offset;
+  instrumental.start(currentTime, offset);
+
+  voices.forEach(voice => {
+    sources[voice].stop();
+    const source = context.createBufferSource();
+    source.buffer = sources[voice].buffer;
+    source.connect(gains[voice]);
+    sources[voice] = source;
+    source.start(currentTime, offset);
+  });
+}
+
+function stop() {
+  instrumental.stop();
+
+  voices.forEach(voice => {
+    sources[voice].stop();
+  });
+}
+
+let lastFrameTime;
+
 function update() {
-  document.getElementById('timer').innerHTML = (startTime && context) ? (context.currentTime - startTime).toFixed(2) : 0;
+  window.requestAnimationFrame(update);
+
+  let time = performance.now();
+  const dt = (lastFrameTime ? time - lastFrameTime : 0.05) / 1000;
+  lastFrameTime = time;
+  const curTime = pausedTime ?? (startTime != undefined && context ? context.currentTime - startTime : 0);
+  document.getElementById('timelabel').innerHTML = new Date(curTime * 1000).toISOString().substring(14, 22);
+  document.getElementById('time').value = curTime;
+
+  if (instrumental && instrumental.buffer && instrumental.buffer.duration < curTime) {
+    seek(0);
+  }
 
   for (const voice of voices) {
     const active = document.getElementById(voice).classList.contains('active');
 
-    const maxGain = 1.5 / (numActive / 7 + 1);
+    const maxGain = 1.8 / (numActive / 5 + 1);
     const gain = gains[voice];
     if (!gain) return;
     if (!active || gain.gain.value > maxGain) {
-      gain.gain.value = Math.max(0, gain.gain.value - 0.1);
+      gain.gain.value = Math.max(0, gain.gain.value - 3 * dt);
     } else {
-      gain.gain.value = Math.min(1, gain.gain.value + 0.1);
+      gain.gain.value = Math.min(1, gain.gain.value + 3 * dt);
     }
   }
 }
-
-setInterval(update, 50);
 
  (async () => {
    dataBuffers = await Promise.all(voices.map(voice => fetch(`${song}/${voice}.ogg`).then(res => res.arrayBuffer())));
