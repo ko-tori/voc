@@ -178,7 +178,7 @@ function update() {
   for (const voice of voices) {
     const active = document.getElementById(voice).classList.contains('active');
 
-    const maxGain = 1.8 / (numActive / 5 + 1);
+    const maxGain = 2.5 / (numActive / 3 + 1);
     const gain = gains[voice];
     if (!gain) return;
     if (!active || gain.gain.value > maxGain) {
