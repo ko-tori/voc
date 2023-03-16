@@ -1,1 +1,1 @@
-ko-tori.github.io/voc
+[ko-tori.github.io/voc](http://ko-tori.github.io/voc)
