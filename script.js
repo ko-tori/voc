@@ -39,16 +39,12 @@ class VocalSimulator {
     this.sources = {};
     this.gains = {};
     this.numActive = 0;
-    this.init();
-  }
-
-  async init() {
-    await this.loadAudio();
     this.createButtons();
     this.initListeners();
   }
 
   async loadAudio() {
+    this.loading = true;
     this.dataBuffers = await Promise.all(this.voices.map(voice => fetch(`${this.song.folder}/${voice}.${this.song.extension}`).then(res => res.arrayBuffer())));
     this.instrumentalData = await fetch(`${this.song.folder}/instrumental.${this.song.extension}`).then(res => res.arrayBuffer());
     document.getElementById('start').disabled = false;
@@ -153,6 +149,13 @@ class VocalSimulator {
       } else if (button.innerHTML == 'Loading...') {
         return;
       }
+
+      await this.loadAudio();
+
+      if (this.destroyed) {
+        return;
+      }
+
       button.innerHTML = 'Loading...';
       button.disabled = true;
       this.context = new (window.AudioContext || window.webkitAudioContext)();
@@ -188,6 +191,7 @@ class VocalSimulator {
       button.disabled = false;
       document.getElementById('time').disabled = false;
       this.update();
+      this.loading = false;
     }
 
     document.addEventListener('keypress', this.keyPressHandler);
@@ -297,6 +301,9 @@ let vs;
 
 function selectSong(i) {
   if (vs) {
+    if (vs.loading) {
+      return;
+    }
     vs.destroy();
   }
   vs = new VocalSimulator(songs[i]);
