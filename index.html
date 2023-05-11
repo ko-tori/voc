@@ -7,23 +7,9 @@
   <link rel='stylesheet' type='text/css' href='style.css'>
 </head>
 <body>
+  <div id='header'><div id='menu'></div><img id='helpButton' src='help.png'></div>
   <div id='container'>
     <div id='voices'>
-      <div class='row'>
-        <div id='nico'><span>Nico</span></div>
-        <div id='nozomi'><span>Nozomi</span></div>
-        <div id='eri'><span>Eri</span></div>
-      </div>
-      <div class='row'>
-        <div id='honoka'><span>Honoka</span></div>
-        <div id='kotori'><span>Kotori</span></div>
-        <div id='umi'><span>Umi</span></div>
-      </div>
-      <div class='row'>
-        <div id='rin'><span>Rin</span></div>
-        <div id='hanayo'><span>Hanayo</span></div>
-        <div id='maki'><span>Maki</span></div>
-      </div>
     </div>
     <div id='controls'>
       <button id='start' disabled='true'>Loading...</button>
@@ -36,6 +22,8 @@
         <label for='volume'>Volume</label>
       </p>
     </div>
+  </div>
+  <dialog id="helpDialog">
     <div id='instructions'>
       <ul>
         <li>Click voices to toggle</li>
@@ -43,7 +31,7 @@
         <li>Shift + [1-9] for solos (turns all others off)</li>
       </ul>
     </div>
-  </div>
+  </dialog>
 </body>
 <script type='text/javascript' src='script.js'></script>
 </html>

@@ -4,14 +4,63 @@
 }
 
 body {
-  margin-top: 30px;
+  margin: 0;
   font-family: NotoSansJp;
 }
 
-@media screen and (max-width: 520px) {
+#helpButton {
+  cursor: pointer;
+}
+
+#header {
+  background-color: #EEE;
+  margin: 0;
+  width: 100%;
+}
+
+#menu {
+  display: inline-block;
+}
+
+#menu div {
+  display: inline-block;
+  border-radius: 5px;
+  padding: 0.5em 1em;
+  margin: 0.5em;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 400px) {
+  #container {
+    max-width: 380px;
+  }
+
+  body {
+    font-size: 0.5em;
+  }
+
+  #helpButton {
+    float: right;
+    height: 2em;
+    margin: 0.5em;
+    vertical-align: middle;
+  }
+}
+
+@media screen and (min-width: 400px) and (max-width: 520px) {
   #container {
     max-width: 480px;
+  }
+
+  body {
     font-size: .75em;
+  }
+
+  #helpButton {
+    float: right;
+    height: 2.5em;
+    margin: 0.5em;
+    vertical-align: middle;
   }
 }
 
@@ -19,29 +68,42 @@ body {
   #container {
     max-width: 640px;
   }
+
+  #helpButton {
+    float: right;
+    height: 3em;
+    margin: 0.25em;
+    vertical-align: middle;
+  }
 }
 
 #container {
-  margin:  0px auto;
+  margin: 2vh auto 0;
 }
 
 .row {
-  display: block;
+  display: flex;
+  flex-direction: row;
 }
 
 #voices {
   user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 #voices .row div {
   cursor: pointer;
   display: inline-block;
   border-radius: 5px;
-  padding: 1.5em 0;
-  margin: 2%;
-  width: 28%;
+  padding: min(3vw, 40px) min(4vw, 40px);
+  margin: min(10px, 1vh);
   opacity: 0.5;
   text-align: center;
+  width: 20vw;
+  max-width: 150px;
   transition: opacity .3s, box-shadow .3s;
 }
 
@@ -50,42 +112,10 @@ body {
   box-shadow: 5px 5px 5px #BBB;
 }
 
-#rin {
-  background-color: #F1C51F;
-}
-
-#hanayo {
-  background-color: #54AB48;
-}
-
-#maki {
-  background-color: #CC3554;
-}
-
-#honoka {
-  background-color: #E2732D;
-}
-
-#kotori {
-  background-color: #8C9395;
-}
-
-#umi {
-  background-color: #1660A5;
-}
-
-#nico {
-  background-color: #D54E8D;
-}
-
-#nozomi {
-  background-color: #744791;
-}
-
-#eri {
-  background-color: #36B3DD;
-}
-
 #controls {
   margin: 10px;
+}
+
+#instructions {
+  pointer-events: none;
 }
