@@ -44,7 +44,6 @@ class VocalSimulator {
   }
 
   async loadAudio() {
-    this.loading = true;
     this.dataBuffers = await Promise.all(this.voices.map(voice => fetch(`${this.song.folder}/${voice}.${this.song.extension}`).then(res => res.arrayBuffer())));
     this.instrumentalData = await fetch(`${this.song.folder}/instrumental.${this.song.extension}`).then(res => res.arrayBuffer());
     document.getElementById('start').disabled = false;
@@ -150,9 +149,11 @@ class VocalSimulator {
         return;
       }
 
+      this.loading = true;
       await this.loadAudio();
 
       if (this.destroyed) {
+        this.loading = false;
         return;
       }
 
