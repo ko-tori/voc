@@ -119,3 +119,28 @@ body {
 #instructions {
   pointer-events: none;
 }
+
+#pulse {
+/*  background-color: red;*/
+  height: 50px;
+  width: 50px;
+  border-radius: 25px;
+  opacity: 0;
+}
+
+#randomize {
+  display: inline-block;
+  opacity: 0.5;
+  cursor: pointer;
+  background-color: #DDD;
+  border-radius: 5px;
+  padding: 4px;
+  user-select: none;
+  margin-left: 10px;
+  transition: opacity .3s, box-shadow .3s;
+}
+
+#randomize.active {
+  opacity: 1;
+  box-shadow: 5px 5px 5px #BBB;
+}

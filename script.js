@@ -1,5 +1,9 @@
 const songs = [{
   name: 'Kitto Seishun ga Kikoeru',
+  offset: 19266,
+  bpm: 165,
+  meter: 4,
+  phraseLength: 1,
   color: '#f6b2d8',
   folder: 'ksgk',
   voices: [
@@ -18,6 +22,10 @@ const songs = [{
 },
 {
   name: 'Koko kara, koko kara',
+  offset: 790,
+  bpm: 175,
+  meter: 4,
+  phraseLength: 4,
   color: '#87CEEB',
   folder: 'kkkk',
   voices: [
@@ -70,6 +78,26 @@ class VocalSimulator {
     return document.getElementById(`${this.song.folder}-${voice}`);
   }
 
+  switchVoices() {
+    const prevVoices = this.voices.filter(voice => this.getButtonByVoice(voice).classList.contains('active'));
+    let shuffled = [], n = 0;
+    while (shuffled.slice(0, n).every((value, index) => { return value === prevVoices[index]})) {
+      n = Math.ceil(Math.random() ** 4 * this.song.voices.length);
+      shuffled = this.voices.sort(() => 0.5 - Math.random());
+    }
+    
+    for (let i = 0; i < this.song.voices.length; i++) {
+      const button = this.getButtonByVoice(shuffled[i]);
+      if (i < n) {
+        button.classList.add('active');
+      } else {
+        button.classList.remove('active');
+      }
+    }
+
+    this.numActive = n;
+  }
+
   initListeners() {
     this.keyPressHandler = e => {
       if (SHIFTED_NUMS.includes(e.key)) {
@@ -108,6 +136,15 @@ class VocalSimulator {
 
     this.clickHandler = e => {
       const target = e.target.id ? e.target : e.target.parentElement;
+
+      if (e.target.id === 'randomize') {
+        this.randomizeVoices = !this.randomizeVoices;
+        if (this.randomizeVoices) {
+          e.target.classList.add('active');
+        } else {
+          e.target.classList.remove('active');
+        }
+      }
 
       if (!target || !this.voices.includes(target.id.split('-')[1])) return;
 
@@ -160,7 +197,6 @@ class VocalSimulator {
       button.innerHTML = 'Loading...';
       button.disabled = true;
       this.context = new (window.AudioContext || window.webkitAudioContext)();
-      const currentTime = this.context.currentTime;
       const audioBuffers = await Promise.all(this.dataBuffers.map(buf => this.context.decodeAudioData(buf)));
 
       this.volumeControl = this.context.createGain();
@@ -170,7 +206,7 @@ class VocalSimulator {
       this.instrumental = this.context.createBufferSource();
       this.instrumental.buffer = await this.context.decodeAudioData(this.instrumentalData);
       this.instrumental.connect(this.volumeControl);
-      this.startTime = currentTime;
+      this.startTime = this.context.currentTime + 0.5;
       this.instrumental.start(this.startTime);
 
       document.getElementById('time').setAttribute('max', this.instrumental.buffer.duration);
@@ -222,6 +258,8 @@ class VocalSimulator {
     const time = document.getElementById('time');
     time.disabled = true;
     document.getElementById('timelabel').innerHTML = '00:00.00';
+
+    document.getElementById('randomize').classList.remove('active');
   }
 
   destroy() {
@@ -237,14 +275,24 @@ class VocalSimulator {
       return;
     }
 
-    window.requestAnimationFrame(this.update);
+    setTimeout(this.update, 10);
 
     let time = performance.now();
     const dt = (this.lastFrameTime ? time - this.lastFrameTime : 0.05) / 1000;
     this.lastFrameTime = time;
     const curTime = this.pausedTime ?? (this.startTime != undefined && this.context ? this.context.currentTime - this.startTime : 0);
-    document.getElementById('timelabel').innerHTML = new Date(curTime * 1000).toISOString().substring(14, 22);
-    document.getElementById('time').value = curTime;
+    const timeSinceLastBeat = (curTime * 1000 - this.song.offset) % (60000 / this.song.bpm * this.song.meter * this.song.phraseLength);
+    if (this.prevTimeSinceLastBeat && timeSinceLastBeat < this.prevTimeSinceLastBeat) {
+      if (this.randomizeVoices) {
+        this.switchVoices();
+      }
+      document.getElementById('pulse').style.opacity = 1;
+    }
+    document.getElementById('pulse').style.opacity = Math.max(0, document.getElementById('pulse').style.opacity - 0.01);
+    this.prevTimeSinceLastBeat = timeSinceLastBeat;
+
+    document.getElementById('timelabel').innerHTML = new Date(Math.max(curTime * 1000, 0)).toISOString().substring(14, 22);
+    document.getElementById('time').value = Math.max(curTime, 0);
 
     if (this.instrumental && this.instrumental.buffer && this.instrumental.buffer.duration < curTime) {
       this.seek(0);
@@ -253,13 +301,13 @@ class VocalSimulator {
     for (const voice of this.voices) {
       const active = this.getButtonByVoice(voice).classList.contains('active');
 
-      const maxGain = 2 / (this.numActive / 3 + 2) + 0.25;
+      const maxGain = 3 / (this.numActive / 3 + 1.5) - 0.1;
       const gain = this.gains[voice];
       if (!gain) return;
       if (!active || gain.gain.value > maxGain) {
         gain.gain.value = Math.max(0, gain.gain.value - 3 * dt);
       } else {
-        gain.gain.value = Math.min(1, gain.gain.value + 3 * dt);
+        gain.gain.value = Math.min(1.5, gain.gain.value + 3 * dt);
       }
     }
   }
